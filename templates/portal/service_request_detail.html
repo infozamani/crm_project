@@ -1,0 +1,65 @@
+{% extends "portal/base_portal.html" %}
+{% load jalali_tags %}
+{% load crispy_forms_tags %}
+{% block title %}{{ service_request.machine_identifier }}{% endblock %}
+{% block content %}
+<h4>پیگیری تعمیر دستگاه {{ service_request.machine_identifier }}</h4>
+<dl class="row mt-3">
+    <dt class="col-sm-3">نوع خرابی</dt><dd class="col-sm-9">{{ service_request.fault_type }}</dd>
+    <dt class="col-sm-3">توضیحات ثبت‌شده شما</dt><dd class="col-sm-9">{{ service_request.description|default:"—" }}</dd>
+    <dt class="col-sm-3">تاریخ پذیرش</dt><dd class="col-sm-9">{{ service_request.received_at|jalali }}</dd>
+    <dt class="col-sm-3">وضعیت فعلی</dt>
+    <dd class="col-sm-9"><span class="badge text-bg-primary fs-6">{{ service_request.get_status_display }}</span></dd>
+</dl>
+
+{% if media_items %}
+<h6>عکس/فیلم ارسالی شما</h6>
+<div class="row g-2 mb-3">
+    {% for media in media_items %}
+        <div class="col-md-3">
+            {% if media.media_type == 'video' %}
+                <video src="{{ media.file.url }}" class="w-100 rounded" controls></video>
+            {% else %}
+                <a href="{{ media.file.url }}" target="_blank"><img src="{{ media.file.url }}" class="img-fluid rounded"></a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if rating_form %}
+<div class="card p-4 mb-4 border-warning">
+    <h5 class="mb-2">⭐ نظر شما درباره این تعمیر چیست؟</h5>
+    <p class="text-muted small">دستگاه شما تحویل داده شده. لطفاً چند ثانیه وقت بگذارید و رضایت خود را ثبت کنید.</p>
+    <form method="post" action="{% url 'portal:service_request_rate' service_request.pk %}">
+        {% csrf_token %}
+        {{ rating_form|crispy }}
+        <button type="submit" class="btn btn-warning mt-2">ثبت نظر</button>
+    </form>
+</div>
+{% elif service_request.customer_rating %}
+<div class="alert alert-light border">
+    امتیاز ثبت‌شده شما:
+    {% for i in "12345" %}{% if forloop.counter <= service_request.customer_rating %}⭐{% else %}☆{% endif %}{% endfor %}
+</div>
+{% endif %}
+
+<h5 class="mt-4">روند تعمیر</h5>
+{% for assignment in assignments %}
+    <div class="card p-3 mb-2">
+        <p class="mb-1"><strong>تکنسین مسئول:</strong> {{ assignment.technician }}</p>
+        <p class="mb-1"><strong>تاریخ شروع:</strong> {{ assignment.start_date|jalali }}
+            {% if assignment.end_date %} | <strong>تاریخ پایان:</strong> {{ assignment.end_date|jalali }}{% endif %}</p>
+        {% for log in assignment.repair_logs.all %}
+            <div class="border-top pt-2 mt-2">
+                <small class="text-muted">{{ log.date|jalali }} — {{ log.hours_spent }} ساعت کار</small>
+                {% if log.notes %}<p class="mb-0">{{ log.notes }}</p>{% endif %}
+            </div>
+        {% empty %}
+            <p class="text-muted mb-0">هنوز گزارش تعمیری برای این مرحله ثبت نشده است.</p>
+        {% endfor %}
+    </div>
+{% empty %}
+    <p class="text-muted">هنوز تکنسینی به این درخواست تخصیص داده نشده است؛ به‌زودی بررسی خواهد شد.</p>
+{% endfor %}
+{% endblock %}

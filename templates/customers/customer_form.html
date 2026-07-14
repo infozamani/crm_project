@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{% if object %}ویرایش مشتری{% else %}مشتری جدید{% endif %}{% endblock %}
+{% block content %}
+<h3 class="mb-3">{% if object %}ویرایش مشتری{% else %}ثبت مشتری جدید{% endif %}</h3>
+<div class="card p-4" style="max-width: 700px;">
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary mt-2">ذخیره</button>
+        <a href="{% url 'customers:customer_list' %}" class="btn btn-outline-secondary mt-2">انصراف</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}سامانه CRM ماشین‌آلات راهسازی{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <style>
+        :root {
+            --brand-dark: #0f2418;
+            --brand: #15532d;
+            --brand-light: #d5e8d4;
+            --accent: #ea9a3e;
+            --surface: #f4f6f5;
+        }
+        body { font-family: Vazirmatn, Tahoma, sans-serif; background-color: var(--surface); }
+
+        /* --- نوار بالا --- */
+        .topbar {
+            background: #fff; border-bottom: 1px solid #e5e7eb;
+            padding: .6rem 1.25rem; display: flex; align-items: center; gap: 1rem;
+        }
+        .topbar .brand-title { font-weight: 700; color: var(--brand-dark); }
+        .topbar .user-chip { display: flex; align-items: center; gap: .5rem; text-decoration: none; color: #1f2937; }
+        .avatar-circle {
+            width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
+            background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: .95rem;
+        }
+        .icon-btn {
+            position: relative; border: none; background: none; color: #4b5563; font-size: 1.25rem;
+            padding: .3rem .5rem; border-radius: .5rem;
+        }
+        .icon-btn:hover { background: #f1f5f9; }
+        .icon-badge {
+            position: absolute; top: -2px; left: -2px; background: #dc2626; color: #fff;
+            font-size: .65rem; border-radius: 50%; padding: 1px 5px; line-height: 1.3;
+        }
+        .card { border: none; border-radius: .9rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+        .kpi-card { border-radius: 1rem; color: #fff; }
+        .table thead th { border-top: none; font-size: .82rem; color: #6b7280; font-weight: 600; }
+        .jalali-date-input, .jalali-datetime-input { font-family: Vazirmatn, Tahoma, sans-serif; }
+
+        /* =========================================================
+           منوی دایره‌ای (Radial Menu)
+           یک دکمه دایره‌ای شناور با لوگوی راهسازی، وسط لبه راست صفحه؛
+           با کلیک، آیتم‌های منو (بر اساس دسترسی کاربر) روی یک نیم‌دایره
+           سمت چپ آن باز می‌شوند (برای جلوگیری از شلوغی، اگر تعداد آیتم‌ها
+           زیاد باشد، در دو حلقه تودرتو چیده می‌شوند).
+           ========================================================= */
+        .radial-menu-wrap {
+            position: fixed; top: 8%; right: 270px; transform: translateY(-50%);
+            z-index: 1055; width: 80px; height: 80px;
+        }
+        .radial-hub {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #2f7a4a, var(--brand-dark) 75%);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 3.2rem; cursor: pointer; user-select: none;
+            box-shadow: 0 8px 20px rgba(15,36,24,.4);
+            border: 3px solid var(--accent);
+            position: relative; z-index: 2; transition: transform .3s ease;
+        }
+        .radial-hub:hover { transform: scale(1.07); }
+        .radial-menu-wrap.open .radial-hub { transform: rotate(75deg); }
+        .radial-hub .hub-label {
+            position: absolute; top: 100%; margin-top: 6px; font-size: .80rem;
+            color: var(--brand-dark); font-weight: 900; white-space: nowrap;
+            background: #fff; padding: 1px 8px; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,.12);
+        }
+        .radial-item {
+            position: absolute; top: 50%; left: 50%; width: 64px; height: 64px;
+            margin: -32px 0 0 -32px; border-radius: 50%;
+            background: #fff; color: var(--brand-dark); text-decoration: none;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: .66rem; font-weight: 700; text-align: center; line-height: 1.1; padding: 3px;
+            box-shadow: 0 4px 14px rgba(0,0,0,.25); border: 2px solid var(--brand-light);
+            opacity: 0; pointer-events: none; transform: translate(0, 0);
+            transition: transform .45s cubic-bezier(.34,1.56,.64,1), opacity .25s ease, background .15s;
+            z-index: 1;
+        }
+        .radial-item .emoji { font-size: 1.25rem; line-height: 1; }
+        .radial-item:hover { background: var(--brand-light); color: var(--brand-dark); z-index: 3; }
+        .radial-item.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
+        .radial-menu-wrap.open .radial-item { opacity: 1; pointer-events: auto; }
+
+        .radial-backdrop {
+            position: fixed; inset: 0; background: rgba(15,36,24,.12); z-index: 1050;
+            opacity: 0; pointer-events: none; transition: opacity .2s;
+        }
+        .radial-backdrop.show { opacity: 1; pointer-events: auto; }
+
+        @media (max-width: 576px) {
+            .radial-menu-wrap { right: 14px; width: 64px; height: 64px; }
+            .radial-hub { width: 64px; height: 64px; font-size: 1.8rem; }
+            .radial-item { width: 54px; height: 54px; margin: -27px 0 0 -27px; font-size: .6rem; }
+            .radial-item .emoji { font-size: 1.05rem; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+{% if not user.is_customer %}
+
+<div class="radial-backdrop" id="radialBackdrop"></div>
+
+<div class="d-flex flex-column" style="min-height:100vh;">
+    <header class="topbar">
+        <span class="brand-title">🚜 CRM  شرکت راهسازی تراک ماشین  </span>
+        <div class="flex-grow-1"></div>
+
+        <a href="{% url 'chat:inbox' %}" class="icon-btn" title="پیام‌ها">💬</a>
+
+        <a href="{% url 'notifications:list' %}" class="icon-btn" title="اعلان‌ها">
+            🔔
+            <span id="notif-unread-count" class="icon-badge d-none">0</span>
+        </a>
+
+        <a href="{% url 'users:profile' %}" class="user-chip">
+            {% if user.avatar_url %}
+                <img src="{{ user.avatar_url }}" class="avatar-circle">
+            {% else %}
+                <span class="avatar-circle">{{ user.first_name|default:user.username|first|upper }}</span>
+            {% endif %}
+            <span class="d-none d-md-flex flex-column lh-1">
+                <strong>{{ user }}</strong>
+                <small class="text-muted">{{ user.get_role_display }}</small>
+            </span>
+        </a>
+
+        <form action="{% url 'users:logout' %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="icon-btn" title="خروج">🚪</button>
+        </form>
+    </header>
+    <div class="radial-menu-wrap" id="radialMenu">
+        <div class="radial-hub" id="radialHubBtn" title="باز کردن منو">
+            🚜
+            <span class="hub-label">منوها</span>
+        </div>
+    
+        <a href="{% url 'reports:dashboard' %}" class="radial-item {% if request.path == '/' %}active{% endif %}">
+            <span class="emoji">📊</span>داشبورد
+        </a>
+    
+        {% if perms.customers.view_customer %}
+            <a href="{% url 'customers:customer_list' %}" class="radial-item"><span class="emoji">👥</span>مشتریان</a>
+        {% endif %}
+        {% if perms.customers.view_salesopportunity %}
+            <a href="{% url 'customers:opportunity_list' %}" class="radial-item"><span class="emoji">🎯</span>فرصت‌ها</a>
+        {% endif %}
+        {% if perms.workshop.view_costestimate %}
+            {% if user.is_sales_manager or user.is_ceo %}
+                <a href="{% url 'workshop:cost_estimate_pending_list' %}" class="radial-item"><span class="emoji">🧾</span>برآوردها</a>
+            {% endif %}
+        {% endif %}
+        {% if perms.sales.view_quote %}
+            <a href="{% url 'sales:quote_list' %}" class="radial-item"><span class="emoji">📄</span>پیش‌فاکتور</a>
+        {% endif %}
+        {% if perms.sales.view_contract %}
+            <a href="{% url 'sales:contract_list' %}" class="radial-item"><span class="emoji">📑</span>قرارداد</a>
+        {% endif %}
+    
+        {% if perms.workshop.view_servicerequest %}
+            <a href="{% url 'workshop:service_request_list' %}" class="radial-item"><span class="emoji">🔧</span>تعمیرگاه</a>
+        {% endif %}
+        {% if user.is_technician %}
+            <a href="{% url 'inventory:part_request_create' %}" class="radial-item"><span class="emoji">📦</span>درخواست قطعه</a>
+        {% endif %}
+        {% if user.is_workshop_manager or user.is_ceo %}
+            <a href="{% url 'workshop:technician_list' %}" class="radial-item"><span class="emoji">🧑‍🔧</span>تکنسین‌ها</a>
+            <a href="{% url 'workshop:field_service_list' %}" class="radial-item"><span class="emoji">🚚</span>مأموریت</a>
+        {% endif %}
+    
+        {% if perms.inventory.view_part %}
+            <a href="{% url 'inventory:part_list' %}" class="radial-item"><span class="emoji">🗃️</span>انبار</a>
+        {% endif %}
+        {% if user.is_storekeeper or user.is_ceo %}
+            <a href="{% url 'inventory:part_request_list' %}" class="radial-item"><span class="emoji">📥</span>درخواست‌ها</a>
+        {% endif %}
+    
+        <a href="{% url 'chat:inbox' %}" class="radial-item"><span class="emoji">💬</span>پیام‌ها</a>
+        <a href="{% url 'notifications:list' %}" class="radial-item"><span class="emoji">🔔</span>اعلان‌ها</a>
+        <a href="{% url 'users:settings' %}" class="radial-item"><span class="emoji">⚙️</span>تنظیمات</a>
+    </div>
+
+    <main class="flex-grow-1 p-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script>
+(function () {
+    var wrap = document.getElementById('radialMenu');
+    var hub = document.getElementById('radialHubBtn');
+    var backdrop = document.getElementById('radialBackdrop');
+    if (!wrap || !hub) return;
+
+    var items = Array.prototype.slice.call(wrap.querySelectorAll('.radial-item'));
+    var n = items.length;
+
+    // حداکثر تعداد آیتم در هر حلقه، طوری که فاصله زاویه‌ای بین آیتم‌ها از حد
+    // مشخصی کمتر نشود (تا خوانا بمانند و روی هم نیفتند)
+    var MAX_PER_RING = 7;
+
+    function layout() {
+        var isSmall = window.innerWidth < 576;
+        var innerRadius = isSmall ? 108 : 150;
+        var outerRadius = isSmall ? 170 : 250;
+
+        // نیم‌دایره سمت چپ دکمه (چون دکمه روی لبه راست صفحه است): از بالا (۹۰ درجه)
+        // تا پایین (۲۷۰ درجه)، عبور از حالت کاملاً چپ (۱۸۰ درجه)
+        var startAngle = 92;
+        var endAngle = 268;
+
+        var useTwoRings = n > MAX_PER_RING;
+        var ring1Count = useTwoRings ? Math.ceil(n / 2) : n;
+        var ring2Count = useTwoRings ? Math.floor(n / 2) : 0;
+
+        items.forEach(function (item, i) {
+            var ringIndex = (useTwoRings && i >= ring1Count) ? 1 : 0;
+            var countInRing = ringIndex === 0 ? ring1Count : ring2Count;
+            var indexInRing = ringIndex === 0 ? i : i - ring1Count;
+            var radius = ringIndex === 0 ? innerRadius : outerRadius;
+
+            var span = (countInRing > 1) ? (endAngle - startAngle) : 0;
+            var angle = (countInRing === 1)
+                ? (startAngle + endAngle) / 2
+                : startAngle + (span * indexInRing / (countInRing - 1));
+            var rad = angle * Math.PI / 270;
+
+            var x = Math.cos(rad) * radius;
+            var y = Math.sin(rad) * radius;
+
+            item.style.transform = wrap.classList.contains('open')
+                ? 'translate(' + x + 'px, ' + y + 'px)'
+                : 'translate(0, 0)';
+        });
+    }
+
+    function toggleMenu() {
+        wrap.classList.toggle('open');
+        backdrop.classList.toggle('show');
+        layout();
+    }
+
+    hub.addEventListener('click', toggleMenu);
+    backdrop.addEventListener('click', toggleMenu);
+    window.addEventListener('resize', layout);
+    layout();
+})();
+</script>
+
+{% else %}
+    {% block customer_content %}{% endblock %}
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>window.NOTIF_UNREAD_URL = "{% url 'notifications:unread_count' %}";</script>
+<script src="{% static 'js/app.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

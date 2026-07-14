@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h3 class="mb-3">{% if quote %}ویرایش پیش‌فاکتور {{ quote.number }}{% else %}پیش‌فاکتور جدید{% endif %}</h3>
+<form method="post">
+    {% csrf_token %}
+    <div class="card p-4 mb-3">
+        {{ form|crispy }}
+    </div>
+    <div class="card p-4 mb-3">
+        <h5>آیتم‌های پیش‌فاکتور</h5>
+        {{ formset.management_form }}
+        <table class="table">
+            <thead><tr><th>شرح</th><th>تعداد</th><th>قیمت واحد</th><th>حذف</th></tr></thead>
+            <tbody>
+            {% for item_form in formset %}
+                <tr>
+                    <td>{{ item_form.description }}{{ item_form.id }}</td>
+                    <td>{{ item_form.quantity }}</td>
+                    <td>{{ item_form.unit_price }}</td>
+                    <td class="text-center">
+                        {% if item_form.instance.pk %}{{ item_form.DELETE }}{% endif %}
+                    </td>
+                </tr>
+                {% for error in item_form.non_field_errors %}<tr><td colspan="4" class="text-danger">{{ error }}</td></tr>{% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button type="submit" class="btn btn-primary">ذخیره پیش‌فاکتور</button>
+    <a href="{% url 'sales:quote_list' %}" class="btn btn-outline-secondary">انصراف</a>
+</form>
+{% endblock %}

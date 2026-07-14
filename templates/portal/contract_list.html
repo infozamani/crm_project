@@ -1,0 +1,29 @@
+{% extends "portal/base_portal.html" %}
+{% load jalali_tags %}
+{% block title %}قراردادهای من{% endblock %}
+{% block content %}
+<h4 class="mb-3">قراردادهای من</h4>
+<table class="table bg-white">
+    <thead><tr><th>نوع قرارداد</th><th>تاریخ امضا</th><th>مبلغ کل</th><th>وضعیت</th><th>تایید شما</th></tr></thead>
+    <tbody>
+    {% for c in contracts %}
+        <tr>
+            <td><a href="{% url 'portal:contract_detail' c.pk %}">{{ c.get_contract_type_display }}</a></td>
+            <td>{{ c.signed_date|jalali }}</td>
+            <td>{{ c.total_amount|floatformat:0 }} ریال</td>
+            <td><span class="badge text-bg-secondary">{{ c.get_status_display }}</span></td>
+            <td>
+                {% if c.is_confirmed_by_customer %}
+                    <span class="badge text-bg-success">تایید شده</span>
+                {% else %}
+                    <a href="{% url 'portal:contract_detail' c.pk %}" class="badge text-bg-warning text-decoration-none">در انتظار تایید</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5" class="text-center text-muted">قراردادی ثبت نشده است.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

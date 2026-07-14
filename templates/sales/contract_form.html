@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h3 class="mb-3">{% if contract %}ویرایش قرارداد{% else %}قرارداد جدید{% endif %}</h3>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card p-4 mb-3">
+        {{ form|crispy }}
+    </div>
+
+    <div class="card p-4 mb-3">
+        <h5>چک‌های دریافتی</h5>
+        {{ check_formset.management_form }}
+        <table class="table">
+            <thead><tr><th>شماره چک</th><th>سررسید</th><th>مبلغ</th><th>بانک</th><th>وضعیت</th><th>حذف</th></tr></thead>
+            <tbody>
+            {% for f in check_formset %}
+                <tr>
+                    <td>{{ f.check_number }}{{ f.id }}</td>
+                    <td>{{ f.due_date }}</td>
+                    <td>{{ f.amount }}</td>
+                    <td>{{ f.issuing_bank }}</td>
+                    <td>{{ f.status }}</td>
+                    <td class="text-center">{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card p-4 mb-3">
+        <h5>مراحل تحویل</h5>
+        {{ delivery_formset.management_form }}
+        <table class="table">
+            <thead><tr><th>تاریخ</th><th>شرح</th><th>تکمیل‌شده</th><th>حذف</th></tr></thead>
+            <tbody>
+            {% for f in delivery_formset %}
+                <tr>
+                    <td>{{ f.scheduled_date }}{{ f.id }}</td>
+                    <td>{{ f.description }}</td>
+                    <td class="text-center">{{ f.is_completed }}</td>
+                    <td class="text-center">{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit" class="btn btn-primary">ذخیره قرارداد</button>
+    <a href="{% url 'sales:contract_list' %}" class="btn btn-outline-secondary">انصراف</a>
+</form>
+{% endblock %}

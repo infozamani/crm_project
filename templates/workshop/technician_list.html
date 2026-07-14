@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>تکنسین‌ها</h3>
+    <a href="{% url 'workshop:technician_create' %}" class="btn btn-primary">+ تکنسین جدید</a>
+</div>
+<table class="table table-striped bg-white">
+    <thead><tr><th>نام</th><th>تخصص</th><th>رتبه</th></tr></thead>
+    <tbody>
+    {% for t in technicians %}
+        <tr><td>{{ t.user }}</td><td>{{ t.specialty }}</td><td>{{ t.rank|default:"—" }}</td></tr>
+    {% empty %}
+        <tr><td colspan="3" class="text-center text-muted">تکنسینی ثبت نشده است.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

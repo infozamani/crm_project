@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}تنظیمات{% endblock %}
+{% block content %}
+<h3 class="mb-4">تنظیمات</h3>
+<div class="list-group" style="max-width:500px;">
+    <a href="{% url 'users:profile' %}" class="list-group-item list-group-item-action">
+        ✏️ ویرایش پروفایل و عکس
+    </a>
+    <a href="{% url 'users:password_change' %}" class="list-group-item list-group-item-action">
+        🔒 تغییر رمز عبور
+    </a>
+    <a href="{% url 'notifications:list' %}" class="list-group-item list-group-item-action">
+        🔔 مشاهده همه اعلان‌ها
+    </a>
+    {% if user.is_ceo %}
+    <a href="/admin/" class="list-group-item list-group-item-action">
+        ⚙️ پنل مدیریت پیشرفته (فقط مدیرعامل)
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block title %}داشبورد مدیریتی{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-0">سلام {{ user.first_name|default:user.username }} 👋</h3>
+        <span class="text-muted">{{ user.get_role_display }}</span>
+    </div>
+    {% if widgets.exports %}
+    <div class="btn-group">
+        <a href="{% url 'reports:sales_report_pdf' %}" class="btn btn-outline-danger btn-sm">خروجی PDF</a>
+        <a href="{% url 'reports:sales_report_excel' %}" class="btn btn-outline-success btn-sm">خروجی Excel</a>
+        <a href="{% url 'reports:sales_report_csv' %}" class="btn btn-outline-secondary btn-sm">خروجی CSV</a>
+    </div>
+    {% endif %}
+</div>
+
+{% if widgets.my_tasks %}
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">کارهای در حال انجام من</h6>
+                <a href="{% url 'workshop:service_request_list' %}" class="btn btn-sm btn-outline-secondary">مشاهده همه</a>
+            </div>
+            <table class="table mb-0">
+                <thead><tr><th>دستگاه</th><th>مشتری</th><th>نوع خرابی</th><th>تاریخ شروع</th></tr></thead>
+                <tbody>
+                {% for a in my_open_assignments %}
+                    <tr>
+                        <td><a href="{{ a.service_request.get_absolute_url }}">{{ a.service_request.machine_identifier }}</a></td>
+                        <td>{{ a.service_request.customer }}</td>
+                        <td>{{ a.service_request.fault_type }}</td>
+                        <td>{{ a.start_date|jalali }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted">در حال حاضر کاری به شما محول نشده است.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card p-3">
+            <h6 class="mb-2">وضعیت درخواست‌های قطعه من</h6>
+            <table class="table mb-0">
+                <thead><tr><th>قطعه</th><th>تعداد</th><th>وضعیت</th></tr></thead>
+                <tbody>
+                {% for r in my_pending_part_requests %}
+                    <tr><td>{{ r.part.name }}</td><td>{{ r.quantity_requested }}</td>
+                        <td><span class="badge text-bg-secondary">{{ r.get_status_display }}</span></td></tr>
+                {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted">درخواست بازی وجود ندارد.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if widgets.sales %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card kpi-card p-3" style="background:#2563eb;">
+            <h6 class="mb-1">فرصت‌های باز</h6><h2 class="mb-0">{{ open_opportunities_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card kpi-card p-3" style="background:#16a34a;">
+            <h6 class="mb-1">قراردادهای فعال</h6><h2 class="mb-0">{{ active_contracts_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card kpi-card p-3" style="background:#ea580c;">
+            <h6 class="mb-1">برآوردهای در انتظار تایید</h6><h2 class="mb-0">{{ pending_estimates_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card kpi-card p-3" style="background:#1f2937;">
+            <h6 class="mb-1">جمع قراردادهای {{ jalali_year }}</h6><h4 class="mb-0">{{ yearly_contract_total|floatformat:0 }} ریال</h4>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if widgets.workshop %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card kpi-card p-3" style="background:#0891b2;">
+            <h6 class="mb-1">درخواست‌های تعمیر باز</h6><h2 class="mb-0">{{ open_service_requests_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card kpi-card p-3" style="background:#7c3aed;">
+            <h6 class="mb-1">درخواست‌های قطعه در انتظار</h6><h2 class="mb-0">{{ pending_part_requests_count }}</h2>
+        </div>
+    </div>
+    {% if avg_customer_rating %}
+    <div class="col-md-4">
+        <div class="card kpi-card p-3" style="background:#c026d3;">
+            <h6 class="mb-1">میانگین رضایت مشتریان</h6>
+            <h2 class="mb-0">{{ avg_customer_rating }} / ۵ ⭐</h2>
+            <small>از {{ rated_requests_count }} نظر ثبت‌شده</small>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if widgets.inventory and low_stock_parts %}
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card p-3">
+            <h6 class="mb-2 text-danger">⚠️ قطعات با موجودی کمتر از حداقل</h6>
+            <table class="table mb-0">
+                <thead><tr><th>قطعه</th><th>موجودی فعلی</th><th>حداقل</th></tr></thead>
+                <tbody>
+                {% for p in low_stock_parts %}
+                    <tr><td><a href="{{ p.get_absolute_url }}">{{ p.name }}</a></td><td>{{ p.current_stock }}</td><td>{{ p.min_stock }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row g-3">
+    {% if widgets.sales %}
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h6>فروش ماهیانه سال {{ jalali_year }} (ریال)</h6>
+            <canvas id="monthlySalesChart" height="200"></canvas>
+        </div>
+    </div>
+    {% endif %}
+    {% if widgets.workshop %}
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h6>وضعیت تعمیرات</h6>
+            <canvas id="repairStatusChart" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h6>پربازده‌ترین تکنسین‌ها (ساعت کار ثبت‌شده)</h6>
+            <canvas id="topTechniciansChart" height="200"></canvas>
+        </div>
+    </div>
+    {% endif %}
+    {% if widgets.inventory %}
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h6>پرمصرف‌ترین قطعات (تعداد خروج از انبار)</h6>
+            <canvas id="partsConsumptionChart" height="200"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+{% if widgets.sales %}
+new Chart(document.getElementById('monthlySalesChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ monthly_sales_labels_json|safe }},
+        datasets: [{ label: 'مبلغ (ریال)', data: {{ monthly_sales_values_json|safe }}, backgroundColor: '#2563eb' }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+});
+{% endif %}
+
+{% if widgets.workshop %}
+new Chart(document.getElementById('repairStatusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ repair_status_labels_json|safe }},
+        datasets: [{ data: {{ repair_status_values_json|safe }}, backgroundColor: ['#0dcaf0', '#ffc107', '#198754', '#6c757d'] }]
+    },
+    options: { responsive: true }
+});
+
+new Chart(document.getElementById('topTechniciansChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ top_technicians_labels_json|safe }},
+        datasets: [{ label: 'ساعت کار', data: {{ top_technicians_values_json|safe }}, backgroundColor: '#fd7e14' }]
+    },
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+});
+{% endif %}
+
+{% if widgets.inventory %}
+new Chart(document.getElementById('partsConsumptionChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ parts_consumption_labels_json|safe }},
+        datasets: [{ label: 'تعداد خروج', data: {{ parts_consumption_values_json|safe }}, backgroundColor: '#dc3545' }]
+    },
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+});
+{% endif %}
+</script>
+{% endblock %}

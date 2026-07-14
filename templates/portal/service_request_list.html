@@ -1,0 +1,25 @@
+{% extends "portal/base_portal.html" %}
+{% load jalali_tags %}
+{% block title %}درخواست‌های تعمیر من{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>تاریخچه درخواست‌های تعمیر</h4>
+    <a href="{% url 'portal:service_request_create' %}" class="btn btn-primary btn-sm">+ ثبت درخواست جدید</a>
+</div>
+<table class="table bg-white">
+    <thead><tr><th>دستگاه</th><th>نوع خرابی</th><th>وضعیت</th><th>تاریخ پذیرش</th></tr></thead>
+    <tbody>
+    {% for sr in service_requests %}
+        <tr>
+            <td><a href="{% url 'portal:service_request_detail' sr.pk %}">{{ sr.machine_identifier }}</a></td>
+            <td>{{ sr.fault_type }}</td>
+            <td><span class="badge text-bg-secondary">{{ sr.get_status_display }}</span></td>
+            <td>{{ sr.received_at|jalali }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4" class="text-center text-muted">درخواستی ثبت نشده است.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

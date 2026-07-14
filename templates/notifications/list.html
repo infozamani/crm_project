@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block title %}اعلان‌ها{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>اعلان‌های من</h3>
+    <form method="post" action="{% url 'notifications:mark_all_read' %}">
+        {% csrf_token %}
+        <button class="btn btn-outline-secondary btn-sm">علامت‌گذاری همه به‌عنوان خوانده‌شده</button>
+    </form>
+</div>
+<div class="list-group">
+    {% for n in notifications %}
+        <a href="{% url 'notifications:read_redirect' n.pk %}"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if not n.is_read %}fw-bold{% endif %}">
+            <span>{{ n.message }}</span>
+            <small class="text-muted">{{ n.created_at|jalali_dt }}</small>
+        </a>
+    {% empty %}
+        <div class="list-group-item text-muted text-center">اعلانی وجود ندارد.</div>
+    {% endfor %}
+</div>
+{% include "partials/pagination.html" %}
+{% endblock %}

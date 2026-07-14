@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start">
+    <div>
+        <h3 class="mb-1">پیش‌فاکتور {{ quote.number }}</h3>
+        {% if quote.status == 'draft' %}
+            <span class="badge text-bg-secondary">پیش‌نویس - هنوز ارسال نشده</span>
+        {% elif quote.status == 'sent' %}
+            <span class="badge text-bg-warning">ارسال‌شده - در انتظار پاسخ مشتری</span>
+        {% elif quote.status == 'approved' %}
+            <span class="badge text-bg-success">تایید شده توسط مشتری ✅</span>
+        {% elif quote.status == 'rejected' %}
+            <span class="badge text-bg-danger">رد شده توسط مشتری</span>
+        {% endif %}
+    </div>
+    <div>
+        <a href="{% url 'sales:quote_update' quote.pk %}" class="btn btn-outline-secondary">ویرایش</a>
+        {% if perms.sales.change_quote and quote.status == 'draft' %}
+            <form method="post" action="{% url 'sales:quote_send' quote.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">ارسال به مشتری برای تایید</button>
+            </form>
+        {% endif %}
+        {% if perms.sales.add_contract %}
+            {% if quote.status == 'approved' %}
+                <a href="{% url 'sales:contract_create' %}?quote={{ quote.pk }}" class="btn btn-primary">ایجاد قرارداد از این پیش‌فاکتور</a>
+            {% else %}
+                <button class="btn btn-primary" disabled title="ابتدا باید مشتری این پیش‌فاکتور را تایید کند">ایجاد قرارداد (نیاز به تایید مشتری)</button>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+<p class="mt-2">مشتری: {{ quote.opportunity.customer }} | فرصت فروش: {{ quote.opportunity.title }} | اعتبار تا: {{ quote.valid_until|jalali }}</p>
+<table class="table table-bordered bg-white">
+    <thead><tr><th>شرح</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
+    <tbody>
+    {% for item in quote.items.all %}
+        <tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>{{ item.unit_price|floatformat:0 }}</td><td>{{ item.line_total|floatformat:0 }}</td></tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr><th colspan="3">جمع جزء</th><th>{{ quote.subtotal|floatformat:0 }}</th></tr>
+        <tr><th colspan="3">تخفیف ({{ quote.discount_percent }}%)</th><th>{{ quote.discount_amount|floatformat:0 }}</th></tr>
+        <tr><th colspan="3">مالیات ({{ quote.tax_percent }}%)</th><th>{{ quote.tax_amount|floatformat:0 }}</th></tr>
+        <tr class="table-primary"><th colspan="3">مبلغ نهایی</th><th>{{ quote.total_amount|floatformat:0 }}</th></tr>
+    </tfoot>
+</table>
+{% endblock %}

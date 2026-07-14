@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block title %}تراکنش‌های انبار{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>تراکنش‌های انبار</h3>
+    <a href="{% url 'inventory:transaction_create' %}" class="btn btn-primary">+ تراکنش جدید</a>
+</div>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="part" class="form-select">
+            <option value="">همه قطعات</option>
+            {% for p in parts %}
+                <option value="{{ p.id }}" {% if request.GET.part == p.id|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="type" class="form-select">
+            <option value="">همه انواع</option>
+            {% for value, label in type_choices %}
+                <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">فیلتر</button></div>
+</form>
+<table class="table table-striped bg-white">
+    <thead><tr><th>قطعه</th><th>نوع</th><th>تعداد</th><th>تاریخ</th><th>ارجاع</th></tr></thead>
+    <tbody>
+    {% for t in transactions %}
+        <tr>
+            <td><a href="{{ t.part.get_absolute_url }}">{{ t.part.name }}</a></td>
+            <td><span class="badge {% if t.transaction_type == 'in' %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ t.get_transaction_type_display }}</span></td>
+            <td>{{ t.quantity }}</td>
+            <td>{{ t.date|jalali_dt }}</td>
+            <td>{{ t.purchase_order_reference|default:t.reference_repair_order|default:"—" }}</td>
+        </tr>
+    {% empty %}<tr><td colspan="5" class="text-center text-muted">تراکنشی یافت نشد.</td></tr>{% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

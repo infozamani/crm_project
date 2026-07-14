@@ -1,0 +1,34 @@
+{% extends "portal/base_portal.html" %}
+{% load jalali_tags %}
+{% block title %}قرارداد شماره {{ contract.pk }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start">
+    <h4>قرارداد شماره {{ contract.pk }}</h4>
+    {% if contract.is_confirmed_by_customer %}
+        <span class="badge text-bg-success fs-6">تایید شده توسط شما ✅</span>
+    {% else %}
+        <span class="badge text-bg-warning fs-6">در انتظار تایید شما</span>
+    {% endif %}
+</div>
+<dl class="row mt-3">
+    <dt class="col-sm-4">نوع قرارداد</dt><dd class="col-sm-8">{{ contract.get_contract_type_display }}</dd>
+    <dt class="col-sm-4">تاریخ امضا</dt><dd class="col-sm-8">{{ contract.signed_date|jalali }}</dd>
+    <dt class="col-sm-4">مبلغ کل</dt><dd class="col-sm-8">{{ contract.total_amount|floatformat:0 }} ریال</dd>
+    <dt class="col-sm-4">پیش‌پرداخت</dt><dd class="col-sm-8">{{ contract.down_payment|floatformat:0 }} ریال</dd>
+    {% if contract.installments_count %}
+    <dt class="col-sm-4">تعداد اقساط</dt><dd class="col-sm-8">{{ contract.installments_count }} قسط از {{ contract.installment_amount|floatformat:0 }} ریال</dd>
+    {% endif %}
+    <dt class="col-sm-4">وضعیت</dt><dd class="col-sm-8">{{ contract.get_status_display }}</dd>
+</dl>
+
+{% if not contract.is_confirmed_by_customer %}
+<div class="card p-4 border-warning" style="max-width:500px;">
+    <h6 class="mb-2">آیا مفاد این قرارداد را تایید می‌کنید؟</h6>
+    <p class="text-muted small">با تایید این قرارداد، تیم تعمیرگاه مطلع می‌شود و کار تعمیر آغاز خواهد شد.</p>
+    <form method="post" action="{% url 'portal:contract_confirm' contract.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">✅ تایید قرارداد و شروع کار</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

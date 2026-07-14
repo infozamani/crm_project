@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>برآورد قیمت</h3>
+<p>دستگاه: {{ estimate.service_request.machine_identifier }} | هزینه: {{ estimate.estimated_cost|floatformat:0 }} ریال</p>
+<a href="{{ estimate.service_request.get_absolute_url }}" class="btn btn-outline-secondary">بازگشت به درخواست تعمیر</a>
+{% endblock %}

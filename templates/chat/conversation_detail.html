@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block title %}گفتگو{% endblock %}
+{% block content %}
+<a href="{% url 'chat:inbox' %}" class="btn btn-sm btn-outline-secondary mb-3">&rarr; بازگشت به پیام‌ها</a>
+<h4 class="mb-3">گفتگو با {{ other }}</h4>
+
+<div class="card p-3 mb-3" style="max-height:400px; overflow-y:auto;">
+    {% for m in conversation.messages.all %}
+        <div class="mb-2 d-flex {% if m.sender == request.user %}justify-content-end{% endif %}">
+            <div class="p-2 rounded {% if m.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}"
+                 style="max-width:70%;">
+                <div>{{ m.content }}</div>
+                <small class="{% if m.sender == request.user %}text-white-50{% else %}text-muted{% endif %}">
+                    {{ m.sender }} — {{ m.created_at|jalali_dt }}
+                </small>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted text-center">هنوز پیامی ارسال نشده است.</p>
+    {% endfor %}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="text" name="content" class="form-control" placeholder="پیام خود را بنویسید..." required autofocus>
+        <button class="btn btn-primary">ارسال</button>
+    </div>
+</form>
+{% endblock %}

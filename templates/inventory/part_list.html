@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}قطعات یدکی{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>قطعات یدکی</h3>
+    <div>
+        <a href="{% url 'inventory:transaction_list' %}" class="btn btn-outline-secondary">تراکنش‌های انبار</a>
+        <a href="{% url 'inventory:turnover_report' %}" class="btn btn-outline-secondary">گزارش گردش کالا</a>
+        <a href="{% url 'inventory:part_create' %}" class="btn btn-primary">+ قطعه جدید</a>
+    </div>
+</div>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4"><input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="جستجو بر اساس نام، کد یا برند"></div>
+    <div class="col-md-3 form-check d-flex align-items-center">
+        <input class="form-check-input me-2" type="checkbox" name="low_only" value="1" id="lowOnly" {% if request.GET.low_only %}checked{% endif %}>
+        <label class="form-check-label" for="lowOnly">فقط موجودی کمتر از حداقل</label>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">فیلتر</button></div>
+</form>
+<table class="table table-striped bg-white">
+    <thead><tr><th>نام</th><th>کد</th><th>برند</th><th>موجودی فعلی</th><th>حداقل/حداکثر</th><th>قیمت واحد</th><th></th></tr></thead>
+    <tbody>
+    {% for part in parts %}
+        <tr class="{% if part.is_below_minimum %}table-danger{% endif %}">
+            <td><a href="{{ part.get_absolute_url }}">{{ part.name }}</a></td>
+            <td>{{ part.code }}</td>
+            <td>{{ part.brand|default:"—" }}</td>
+            <td>{{ part.current_stock }} {% if part.is_below_minimum %}<span class="badge text-bg-danger">کمبود</span>{% endif %}</td>
+            <td>{{ part.min_stock }} / {{ part.max_stock }}</td>
+            <td>{{ part.unit_price|floatformat:0 }}</td>
+            <td class="text-end">
+                <a href="{% url 'inventory:part_update' part.pk %}" class="btn btn-sm btn-outline-secondary">ویرایش</a>
+                <a href="{% url 'inventory:part_delete' part.pk %}" class="btn btn-sm btn-outline-danger">حذف</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7" class="text-center text-muted">قطعه‌ای یافت نشد.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

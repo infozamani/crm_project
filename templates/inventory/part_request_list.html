@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block title %}درخواست‌های قطعه{% endblock %}
+{% block content %}
+<h3 class="mb-3">درخواست‌های قطعه از تکنسین‌ها</h3>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if request.GET.status == value or not request.GET.status and value == 'pending' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">فیلتر</button></div>
+</form>
+<table class="table bg-white">
+    <thead><tr><th>قطعه</th><th>تعداد</th><th>درخواست‌دهنده</th><th>تاریخ</th><th>وضعیت</th><th></th></tr></thead>
+    <tbody>
+    {% for pr in part_requests %}
+        <tr>
+            <td>{{ pr.part.name }}</td>
+            <td>{{ pr.quantity_requested }}</td>
+            <td>{{ pr.requested_by }}</td>
+            <td>{{ pr.created_at|jalali_dt }}</td>
+            <td><span class="badge text-bg-secondary">{{ pr.get_status_display }}</span></td>
+            <td class="text-end">
+                {% if pr.status == 'pending' and perms.inventory.change_partrequest %}
+                <form method="post" action="{% url 'inventory:part_request_fulfill' pr.pk %}" class="d-inline">
+                    {% csrf_token %}<button class="btn btn-sm btn-success">تامین</button>
+                </form>
+                <form method="post" action="{% url 'inventory:part_request_reject' pr.pk %}" class="d-inline">
+                    {% csrf_token %}<button class="btn btn-sm btn-outline-danger">رد</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6" class="text-center text-muted">درخواستی یافت نشد.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

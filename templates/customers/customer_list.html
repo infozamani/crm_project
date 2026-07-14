@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}مشتریان{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>مشتریان</h3>
+    <a href="{% url 'customers:customer_create' %}" class="btn btn-primary">+ مشتری جدید</a>
+</div>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="جستجو بر اساس نام، کد ملی/اقتصادی یا تلفن">
+    </div>
+    <div class="col-md-3">
+        <select name="type" class="form-select">
+            <option value="">همه انواع</option>
+            <option value="individual" {% if request.GET.type == 'individual' %}selected{% endif %}>حقیقی</option>
+            <option value="legal" {% if request.GET.type == 'legal' %}selected{% endif %}>حقوقی</option>
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">فیلتر</button></div>
+</form>
+<table class="table table-striped bg-white">
+    <thead><tr><th>نام</th><th>نوع</th><th>کد ملی/اقتصادی</th><th>تلفن</th><th>کارشناس</th><th></th></tr></thead>
+    <tbody>
+    {% for customer in customers %}
+        <tr>
+            <td><a href="{{ customer.get_absolute_url }}">{{ customer.name }}</a></td>
+            <td>{{ customer.get_customer_type_display }}</td>
+            <td>{{ customer.national_or_economic_id }}</td>
+            <td>{{ customer.phone_number }}</td>
+            <td>{{ customer.assigned_sales_rep|default:"—" }}</td>
+            <td class="text-end">
+                <a href="{% url 'customers:customer_update' customer.pk %}" class="btn btn-sm btn-outline-secondary">ویرایش</a>
+                <a href="{% url 'customers:customer_delete' customer.pk %}" class="btn btn-sm btn-outline-danger">حذف</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6" class="text-center text-muted">مشتری‌ای یافت نشد.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

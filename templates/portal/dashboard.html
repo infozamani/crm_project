@@ -1,0 +1,84 @@
+{% extends "portal/base_portal.html" %}
+{% load jalali_tags %}
+{% block title %}داشبورد پرتال مشتری{% endblock %}
+{% block content %}
+<h4 class="mb-4">خوش آمدید، {{ customer.name }}</h4>
+
+{% if pending_quotes %}
+<div class="alert alert-warning d-flex justify-content-between align-items-center">
+    <span>📄 {{ pending_quotes|length }} پیش‌فاکتور در انتظار تایید شماست.</span>
+    <a href="{% url 'portal:quote_list' %}" class="btn btn-sm btn-warning">بررسی و تایید</a>
+</div>
+{% endif %}
+
+{% if pending_contracts %}
+<div class="alert alert-warning d-flex justify-content-between align-items-center">
+    <span>📑 {{ pending_contracts|length }} قرارداد در انتظار تایید شماست تا کار تعمیر آغاز شود.</span>
+    <a href="{% url 'portal:contract_list' %}" class="btn btn-sm btn-warning">بررسی و تایید</a>
+</div>
+{% endif %}
+
+{% if unrated_requests %}
+<div class="alert alert-info d-flex justify-content-between align-items-center">
+    <span>⭐ لطفاً رضایت خود را از {{ unrated_requests|length }} تعمیر تحویل‌داده‌شده ثبت کنید.</span>
+    <a href="{% url 'portal:service_request_detail' unrated_requests.0.pk %}" class="btn btn-sm btn-info text-white">ثبت نظر</a>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h6>درخواست‌های تعمیر باز</h6>
+            <h2>{{ open_service_requests|length }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h6>پیش‌فاکتورهای اخیر</h6>
+            <h2>{{ recent_quotes|length }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h6>قراردادهای فعال</h6>
+            <h2>{{ active_contracts.count }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>درخواست‌های تعمیر باز</h5>
+    <a href="{% url 'portal:service_request_create' %}" class="btn btn-primary btn-sm">+ ثبت درخواست جدید</a>
+</div>
+<table class="table bg-white">
+    <thead><tr><th>دستگاه</th><th>نوع خرابی</th><th>وضعیت</th><th>تاریخ پذیرش</th></tr></thead>
+    <tbody>
+    {% for sr in open_service_requests %}
+        <tr>
+            <td><a href="{% url 'portal:service_request_detail' sr.pk %}">{{ sr.machine_identifier }}</a></td>
+            <td>{{ sr.fault_type }}</td>
+            <td><span class="badge text-bg-warning">{{ sr.get_status_display }}</span></td>
+            <td>{{ sr.received_at|jalali }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4" class="text-center text-muted">درخواست بازی وجود ندارد.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h5 class="mt-4">پیش‌فاکتورهای اخیر</h5>
+<table class="table bg-white">
+    <thead><tr><th>شماره</th><th>اعتبار تا</th><th>مبلغ نهایی</th></tr></thead>
+    <tbody>
+    {% for q in recent_quotes %}
+        <tr>
+            <td><a href="{% url 'portal:quote_detail' q.pk %}">{{ q.number }}</a></td>
+            <td>{{ q.valid_until|jalali }}</td>
+            <td>{{ q.total_amount|floatformat:0 }} ریال</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="3" class="text-center text-muted">پیش‌فاکتوری ثبت نشده است.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

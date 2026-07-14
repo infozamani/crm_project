@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between">
+    <h3>{{ customer.name }}</h3>
+    <a href="{% url 'customers:customer_update' customer.pk %}" class="btn btn-outline-secondary">ویرایش</a>
+</div>
+<dl class="row mt-3">
+    <dt class="col-sm-3">نوع مشتری</dt><dd class="col-sm-9">{{ customer.get_customer_type_display }}</dd>
+    <dt class="col-sm-3">کد ملی/اقتصادی</dt><dd class="col-sm-9">{{ customer.national_or_economic_id }}</dd>
+    <dt class="col-sm-3">تلفن</dt><dd class="col-sm-9">{{ customer.phone_number }}</dd>
+    <dt class="col-sm-3">آدرس</dt><dd class="col-sm-9">{{ customer.address|default:"—" }}</dd>
+    <dt class="col-sm-3">اعتبارسنجی</dt><dd class="col-sm-9">{% if customer.is_verified %}✅{% else %}❌{% endif %}</dd>
+    <dt class="col-sm-3">کارشناس مسئول</dt><dd class="col-sm-9">{{ customer.assigned_sales_rep|default:"—" }}</dd>
+    <dt class="col-sm-3">حساب پرتال مشتری</dt>
+    <dd class="col-sm-9">
+        {% if customer.portal_user %}
+            <span class="badge text-bg-success">فعال</span> ({{ customer.portal_user.username }})
+        {% else %}
+            {% if perms.customers.change_customer %}
+            <form method="post" action="{% url 'customers:customer_create_portal_account' customer.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-primary">ایجاد حساب پرتال برای مشتری</button>
+            </form>
+            {% else %}
+                <span class="text-muted">ندارد</span>
+            {% endif %}
+        {% endif %}
+    </dd>
+</dl>
+<h5 class="mt-4">فرصت‌های فروش</h5>
+<ul class="list-group">
+{% for opp in customer.opportunities.all %}
+    <li class="list-group-item d-flex justify-content-between">
+        <a href="{{ opp.get_absolute_url }}">{{ opp.title }}</a>
+        <span class="badge text-bg-secondary">{{ opp.get_status_display }}</span>
+    </li>
+{% empty %}
+    <li class="list-group-item text-muted">فرصتی ثبت نشده است.</li>
+{% endfor %}
+</ul>
+{% endblock %}

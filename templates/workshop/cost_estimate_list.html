@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}برآوردهای در انتظار تایید{% endblock %}
+{% block content %}
+<h3 class="mb-3">برآوردهای در انتظار تایید</h3>
+<table class="table bg-white">
+    <thead><tr><th>دستگاه</th><th>مشتری</th><th>برآورد هزینه</th><th>تکنسین</th><th></th></tr></thead>
+    <tbody>
+    {% for e in estimates %}
+        <tr>
+            <td>{{ e.service_request.machine_identifier }}</td>
+            <td>{{ e.service_request.customer }}</td>
+            <td>{{ e.estimated_cost|floatformat:0 }} ریال</td>
+            <td>{{ e.created_by }}</td>
+            <td class="text-end">
+                <a href="{{ e.service_request.get_absolute_url }}" class="btn btn-sm btn-outline-primary">بررسی</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5" class="text-center text-muted">برآورد در انتظاری وجود ندارد.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

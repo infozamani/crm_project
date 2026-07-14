@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}فرصت‌های فروش{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>فرصت‌های فروش</h3>
+    <a href="{% url 'customers:opportunity_create' %}" class="btn btn-primary">+ فرصت جدید</a>
+</div>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">همه وضعیت‌ها</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="customer" class="form-select">
+            <option value="">همه مشتریان</option>
+            {% for c in customers %}
+                <option value="{{ c.id }}" {% if request.GET.customer == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2"><input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control"></div>
+    <div class="col-md-2"><input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control"></div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">فیلتر</button></div>
+</form>
+<table class="table table-striped bg-white">
+    <thead><tr><th>عنوان</th><th>مشتری</th><th>مدل دستگاه</th><th>بودجه</th><th>وضعیت</th><th>مسئول</th></tr></thead>
+    <tbody>
+    {% for opp in opportunities %}
+        <tr>
+            <td><a href="{{ opp.get_absolute_url }}">{{ opp.title }}</a></td>
+            <td>{{ opp.customer }}</td>
+            <td>{{ opp.machine_model }}</td>
+            <td>{{ opp.estimated_budget|floatformat:0 }}</td>
+            <td><span class="badge text-bg-secondary">{{ opp.get_status_display }}</span></td>
+            <td>{{ opp.owner|default:"—" }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6" class="text-center text-muted">فرصتی یافت نشد.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

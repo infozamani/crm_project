@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start">
+    <div>
+        <h3 class="mb-1">قرارداد {{ contract.customer }}</h3>
+        {% if contract.is_confirmed_by_customer %}
+            <span class="badge text-bg-success">تایید شده توسط مشتری ✅ ({{ contract.confirmed_at|jalali_dt }})</span>
+        {% else %}
+            <span class="badge text-bg-warning">⚠️ هنوز توسط مشتری تایید نشده</span>
+        {% endif %}
+    </div>
+    <a href="{% url 'sales:contract_update' contract.pk %}" class="btn btn-outline-secondary">ویرایش</a>
+</div>
+{% if not contract.is_confirmed_by_customer %}
+<div class="alert alert-warning mt-3">
+    این قرارداد هنوز توسط مشتری از پرتال خودش تایید نشده. توصیه می‌شود پیش از شروع رسمی کار
+    تعمیر، تایید مشتری دریافت شود (اگر مشتری حساب پرتال ندارد، از صفحه مشتری یکی برایش بسازید).
+</div>
+{% endif %}
+<dl class="row mt-3">
+    <dt class="col-sm-3">نوع قرارداد</dt><dd class="col-sm-9">{{ contract.get_contract_type_display }}</dd>
+    <dt class="col-sm-3">تاریخ امضا</dt><dd class="col-sm-9">{{ contract.signed_date|jalali }}</dd>
+    <dt class="col-sm-3">مبلغ کل</dt><dd class="col-sm-9">{{ contract.total_amount|floatformat:0 }} ریال</dd>
+    <dt class="col-sm-3">پیش‌پرداخت</dt><dd class="col-sm-9">{{ contract.down_payment|floatformat:0 }} ریال</dd>
+    <dt class="col-sm-3">وضعیت</dt><dd class="col-sm-9">{{ contract.get_status_display }}</dd>
+    {% if contract.attachment %}
+    <dt class="col-sm-3">فایل پیوست</dt><dd class="col-sm-9"><a href="{{ contract.attachment.url }}">دانلود</a></dd>
+    {% endif %}
+</dl>
+
+<h5 class="mt-4">چک‌ها</h5>
+<table class="table table-bordered bg-white">
+    <thead><tr><th>شماره</th><th>سررسید</th><th>مبلغ</th><th>بانک</th><th>وضعیت</th></tr></thead>
+    <tbody>
+    {% for c in contract.checks.all %}
+        <tr><td>{{ c.check_number }}</td><td>{{ c.due_date|jalali }}</td><td>{{ c.amount|floatformat:0 }}</td><td>{{ c.issuing_bank }}</td><td>{{ c.get_status_display }}</td></tr>
+    {% empty %}<tr><td colspan="5" class="text-muted text-center">چکی ثبت نشده است.</td></tr>{% endfor %}
+    </tbody>
+</table>
+
+<h5 class="mt-4">مراحل تحویل</h5>
+<ul class="list-group">
+    {% for d in contract.delivery_schedules.all %}
+        <li class="list-group-item d-flex justify-content-between">
+            {{ d.description }} - {{ d.scheduled_date|jalali }}
+            <span class="badge {% if d.is_completed %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                {% if d.is_completed %}تکمیل‌شده{% else %}در انتظار{% endif %}
+            </span>
+        </li>
+    {% empty %}<li class="list-group-item text-muted">مرحله‌ای ثبت نشده است.</li>{% endfor %}
+</ul>
+{% endblock %}

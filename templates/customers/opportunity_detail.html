@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="d-flex justify-content-between">
+    <h3>{{ opportunity.title }}</h3>
+    <a href="{% url 'customers:opportunity_update' opportunity.pk %}" class="btn btn-outline-secondary">ویرایش</a>
+</div>
+<dl class="row mt-3">
+    <dt class="col-sm-3">مشتری</dt><dd class="col-sm-9"><a href="{{ opportunity.customer.get_absolute_url }}">{{ opportunity.customer }}</a></dd>
+    <dt class="col-sm-3">مدل دستگاه</dt><dd class="col-sm-9">{{ opportunity.machine_model }}</dd>
+    <dt class="col-sm-3">بودجه تقریبی</dt><dd class="col-sm-9">{{ opportunity.estimated_budget|floatformat:0 }} ریال</dd>
+    <dt class="col-sm-3">وضعیت</dt><dd class="col-sm-9">{{ opportunity.get_status_display }}</dd>
+</dl>
+
+<h5 class="mt-4">تعاملات ثبت‌شده</h5>
+<ul class="list-group mb-3">
+{% for i in opportunity.interactions.all %}
+    <li class="list-group-item">
+        <strong>{{ i.get_interaction_type_display }}</strong> - {{ i.date|jalali_dt }}
+        <p class="mb-0 text-muted">{{ i.notes }}</p>
+    </li>
+{% empty %}
+    <li class="list-group-item text-muted">تعاملی ثبت نشده است.</li>
+{% endfor %}
+</ul>
+
+<h5>ثبت تعامل جدید</h5>
+<div class="card p-3" style="max-width:600px;">
+    <form method="post" action="{% url 'customers:interaction_create' opportunity.pk %}">
+        {% csrf_token %}
+        {{ interaction_form|crispy }}
+        <button type="submit" class="btn btn-primary mt-2">ثبت تعامل</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "portal/base_portal.html" %}
+{% load jalali_tags %}
+{% block title %}پیش‌فاکتورهای من{% endblock %}
+{% block content %}
+<h4 class="mb-3">پیش‌فاکتورهای من</h4>
+<table class="table bg-white">
+    <thead><tr><th>شماره</th><th>پروژه</th><th>اعتبار تا</th><th>مبلغ نهایی</th></tr></thead>
+    <tbody>
+    {% for q in quotes %}
+        <tr class="{% if q.is_expired %}table-warning{% endif %}">
+            <td><a href="{% url 'portal:quote_detail' q.pk %}">{{ q.number }}</a></td>
+            <td>{{ q.opportunity.title }}</td>
+            <td>{{ q.valid_until|jalali }}{% if q.is_expired %} <span class="badge text-bg-warning">منقضی</span>{% endif %}</td>
+            <td>{{ q.total_amount|floatformat:0 }} ریال</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4" class="text-center text-muted">پیش‌فاکتوری ثبت نشده است.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h3 class="mb-3">{% if object %}ویرایش قطعه{% else %}قطعه جدید{% endif %}</h3>
+<div class="card p-4" style="max-width:600px;">
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary mt-2">ذخیره</button>
+        <a href="{% url 'inventory:part_list' %}" class="btn btn-outline-secondary mt-2">انصراف</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}درخواست قطعه از انبار{% endblock %}
+{% block content %}
+<h3 class="mb-3">درخواست قطعه از انبار</h3>
+<div class="card p-4" style="max-width:600px;">
+    <form method="post">
+        {% csrf_token %}
+        {% if request.GET.task_assignment %}
+            <input type="hidden" name="task_assignment" value="{{ request.GET.task_assignment }}">
+        {% endif %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary mt-2">ارسال درخواست</button>
+    </form>
+</div>
+{% endblock %}

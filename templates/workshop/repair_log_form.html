@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h3 class="mb-3">ثبت گزارش تعمیر</h3>
+<div class="card p-4" style="max-width:600px;">
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary mt-2">ذخیره</button>
+    </form>
+</div>
+{% endblock %}
