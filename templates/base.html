@@ -7,6 +7,7 @@
     <title>{% block title %}سامانه CRM ماشین‌آلات راهسازی{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <link rel="stylesheet" href="{% static 'css/neat-background.css' %}">
     <style>
         :root {
             --brand-dark: #0f2418;
@@ -17,78 +18,345 @@
         }
         body { font-family: Vazirmatn, Tahoma, sans-serif; background-color: var(--surface); }
 
-        /* --- نوار بالا --- */
+        /* --- نوار بالا (هدر جدید) --- */
         .topbar {
-            background: #fff; border-bottom: 1px solid #e5e7eb;
-            padding: .6rem 1.25rem; display: flex; align-items: center; gap: 1rem;
+            background: #fff; 
+            border-bottom: 1px solid #e5e7eb;
+            padding: .6rem 1.25rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem;
+            position: sticky; 
+            top: 0; 
+            z-index: 1030;
+            overflow: visible !important;
+            min-height: 80px;
         }
-        .topbar .brand-title { font-weight: 700; color: var(--brand-dark); }
-        .topbar .user-chip { display: flex; align-items: center; gap: .5rem; text-decoration: none; color: #1f2937; }
+
+        .topbar .brand-title { 
+            font-weight: 700; 
+            color: var(--brand-dark); 
+            white-space: nowrap; 
+        }
+        
+        .topbar .user-chip { 
+            display: flex; 
+            align-items: center; 
+            gap: .5rem; 
+            text-decoration: none; 
+            color: #1f2937; 
+        }
+        
         .avatar-circle {
-            width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
-            background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: .95rem;
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            object-fit: cover;
+            background: var(--brand); 
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-weight: 700; 
+            font-size: .95rem;
         }
+        
         .icon-btn {
-            position: relative; border: none; background: none; color: #4b5563; font-size: 1.25rem;
-            padding: .3rem .5rem; border-radius: .5rem;
+            position: relative; 
+            border: none; 
+            background: none; 
+            color: #4b5563; 
+            font-size: 1.25rem;
+            padding: .3rem .5rem; 
+            border-radius: .5rem;
         }
         .icon-btn:hover { background: #f1f5f9; }
+        
         .icon-badge {
-            position: absolute; top: -2px; left: -2px; background: #dc2626; color: #fff;
-            font-size: .65rem; border-radius: 50%; padding: 1px 5px; line-height: 1.3;
+            position: absolute; 
+            top: -2px; 
+            left: -2px; 
+            background: #dc2626; 
+            color: #fff;
+            font-size: .65rem; 
+            border-radius: 50%; 
+            padding: 1px 5px; 
+            line-height: 1.3;
         }
-        .card { border: none; border-radius: .9rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-        .kpi-card { border-radius: 1rem; color: #fff; }
-        .table thead th { border-top: none; font-size: .82rem; color: #6b7280; font-weight: 600; }
-        .jalali-date-input, .jalali-datetime-input { font-family: Vazirmatn, Tahoma, sans-serif; }
+        
+        .card { 
+            border: none; 
+            border-radius: .9rem; 
+            box-shadow: 0 1px 3px rgba(0,0,0,.06); 
+        }
+        
+        .kpi-card { 
+            border-radius: 1rem; 
+            color: #fff; 
+        }
+        
+        .table thead th { 
+            border-top: none; 
+            font-size: .82rem; 
+            color: #6b7280; 
+            font-weight: 600; 
+        }
+        
+        .jalali-date-input, .jalali-datetime-input { 
+            font-family: Vazirmatn, Tahoma, sans-serif; 
+        }
 
         /* =========================================================
-           منوی دایره‌ای (Radial Menu)
-           یک دکمه دایره‌ای شناور با لوگوی راهسازی، وسط لبه راست صفحه؛
-           با کلیک، آیتم‌های منو (بر اساس دسترسی کاربر) روی یک نیم‌دایره
-           سمت چپ آن باز می‌شوند (برای جلوگیری از شلوغی، اگر تعداد آیتم‌ها
-           زیاد باشد، در دو حلقه تودرتو چیده می‌شوند).
+           دکمه منو (نسخه جدید - کشویی)
+           ========================================================= */
+        .menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .menu-hub {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #2f7a4a, var(--brand-dark) 75%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(15,36,24,.35);
+            border: 2px solid var(--accent);
+            transition: transform .3s ease;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .menu-hub:hover { 
+            transform: scale(1.06); 
+        }
+        
+        .menu-hub.open { 
+            transform: rotate(90deg); 
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 280px;
+            max-width: 90vw;
+            max-height: 70vh;
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 12px 32px rgba(15,36,24,.22);
+            border: 1px solid #eef1ef;
+            padding: .5rem 0;
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: top center;
+            transform: translateX(50%) scale(.96) translateY(-6px);
+            transition: opacity .18s ease, transform .18s ease;
+            z-index: 1060;
+        }
+        
+        .menu-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(50%) scale(1) translateY(0);
+        }
+        
+        .menu-dropdown::before {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            border: 8px solid transparent;
+            border-bottom-color: #fff;
+        }
+
+        .menu-section-label {
+            color: #9ca3af;
+            font-size: .72rem;
+            padding: .6rem 1.1rem .25rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 700;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            padding: .55rem 1.1rem;
+            color: #1f2937;
+            text-decoration: none;
+            font-size: .92rem;
+            transition: background .12s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: right;
+        }
+        
+        .menu-item:hover { 
+            background: var(--brand-light); 
+            color: var(--brand-dark); 
+        }
+        
+        .menu-item.active { 
+            background: var(--accent); 
+            color: #1a1a1a; 
+            font-weight: 600; 
+        }
+        
+        .menu-item .emoji { 
+            font-size: 1.15rem; 
+            width: 1.5rem; 
+            text-align: center; 
+        }
+        
+        .menu-divider { 
+            border-top: 1px solid #eef1ef; 
+            margin: .4rem 0; 
+        }
+
+        .menu-backdrop {
+            position: fixed;
+            inset: 0;
+            background: transparent;
+            z-index: 1055;
+            display: none;
+        }
+        
+        .menu-backdrop.show { 
+            display: block; 
+        }
+
+        /* نمایش URL در status bar */
+        .menu-item[href]:hover::after {
+            content: attr(href);
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 9999;
+            font-weight: normal;
+            font-family: monospace;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .menu-item[href]:hover::after {
+                font-size: 11px;
+                padding: 4px 12px;
+                bottom: 5px;
+            }
+        }
+
+        /* =========================================================
+           منوی شعاعی (Radial Menu) - حفظ شده از کد قبلی
            ========================================================= */
         .radial-menu-wrap {
-            position: fixed; top: 8%; right: 270px; transform: translateY(-50%);
-            z-index: 1055; width: 80px; height: 80px;
+            position: fixed; 
+            top: 8%; 
+            right: 270px; 
+            transform: translateY(-50%);
+            z-index: 1055; 
+            width: 80px; 
+            height: 80px;
         }
+        
         .radial-hub {
-            width: 80px; height: 80px; border-radius: 50%;
+            width: 80px; 
+            height: 80px; 
+            border-radius: 50%;
             background: radial-gradient(circle at 35% 30%, #2f7a4a, var(--brand-dark) 75%);
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            font-size: 3.2rem; cursor: pointer; user-select: none;
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 3.2rem; 
+            cursor: pointer; 
+            user-select: none;
             box-shadow: 0 8px 20px rgba(15,36,24,.4);
             border: 3px solid var(--accent);
-            position: relative; z-index: 2; transition: transform .3s ease;
+            position: relative; 
+            z-index: 2; 
+            transition: transform .3s ease;
         }
+        
         .radial-hub:hover { transform: scale(1.07); }
         .radial-menu-wrap.open .radial-hub { transform: rotate(75deg); }
+        
         .radial-hub .hub-label {
-            position: absolute; top: 100%; margin-top: 6px; font-size: .80rem;
-            color: var(--brand-dark); font-weight: 900; white-space: nowrap;
-            background: #fff; padding: 1px 8px; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,.12);
+            position: absolute; 
+            top: 100%; 
+            margin-top: 6px; 
+            font-size: .80rem;
+            color: var(--brand-dark); 
+            font-weight: 900; 
+            white-space: nowrap;
+            background: #fff; 
+            padding: 1px 8px; 
+            border-radius: 1rem; 
+            box-shadow: 0 2px 6px rgba(0,0,0,.12);
         }
+        
         .radial-item {
-            position: absolute; top: 50%; left: 50%; width: 64px; height: 64px;
-            margin: -32px 0 0 -32px; border-radius: 50%;
-            background: #fff; color: var(--brand-dark); text-decoration: none;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: .66rem; font-weight: 700; text-align: center; line-height: 1.1; padding: 3px;
-            box-shadow: 0 4px 14px rgba(0,0,0,.25); border: 2px solid var(--brand-light);
-            opacity: 0; pointer-events: none; transform: translate(0, 0);
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            width: 64px; 
+            height: 64px;
+            margin: -32px 0 0 -32px; 
+            border-radius: 50%;
+            background: #fff; 
+            color: var(--brand-dark); 
+            text-decoration: none;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            font-size: .66rem; 
+            font-weight: 700; 
+            text-align: center; 
+            line-height: 1.1; 
+            padding: 3px;
+            box-shadow: 0 4px 14px rgba(0,0,0,.25); 
+            border: 2px solid var(--brand-light);
+            opacity: 0; 
+            pointer-events: none; 
+            transform: translate(0, 0);
             transition: transform .45s cubic-bezier(.34,1.56,.64,1), opacity .25s ease, background .15s;
             z-index: 1;
         }
+        
         .radial-item .emoji { font-size: 1.25rem; line-height: 1; }
         .radial-item:hover { background: var(--brand-light); color: var(--brand-dark); z-index: 3; }
         .radial-item.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
         .radial-menu-wrap.open .radial-item { opacity: 1; pointer-events: auto; }
 
         .radial-backdrop {
-            position: fixed; inset: 0; background: rgba(15,36,24,.12); z-index: 1050;
-            opacity: 0; pointer-events: none; transition: opacity .2s;
+            position: fixed; 
+            inset: 0; 
+            background: rgba(15,36,24,.12); 
+            z-index: 1050;
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity .2s;
         }
         .radial-backdrop.show { opacity: 1; pointer-events: auto; }
 
@@ -104,11 +372,22 @@
 <body>
 {% if not user.is_customer %}
 
+<!-- Backdrop برای منوی کشویی -->
+<div class="menu-backdrop" id="menuBackdrop"></div>
+
+<!-- Backdrop برای منوی شعاعی -->
 <div class="radial-backdrop" id="radialBackdrop"></div>
 
 <div class="d-flex flex-column" style="min-height:100vh;">
+    <!-- هدر جدید با دکمه منوی وسط -->
     <header class="topbar">
-        <span class="brand-title">🚜 CRM  شرکت راهسازی تراک ماشین  </span>
+        <canvas id="neatBackgroundCanvas"></canvas>
+        <span class="brand-title">🚜 CRM شرکت راهسازی تراک ماشین</span>
+
+        <div class="flex-grow-1"></div>
+
+       
+
         <div class="flex-grow-1"></div>
 
         <a href="{% url 'chat:inbox' %}" class="icon-btn" title="پیام‌ها">💬</a>
@@ -135,8 +414,10 @@
             <button type="submit" class="icon-btn" title="خروج">🚪</button>
         </form>
     </header>
+
+    <!-- منوی شعاعی (حفظ شده از کد قبلی شما) -->
     <div class="radial-menu-wrap" id="radialMenu">
-        <div class="radial-hub" id="radialHubBtn" title="باز کردن منو">
+        <div class="radial-hub" id="radialHubBtn" title="باز کردن منوی شعاعی">
             🚜
             <span class="hub-label">منوها</span>
         </div>
@@ -201,63 +482,119 @@
 
 <script>
 (function () {
-    var wrap = document.getElementById('radialMenu');
-    var hub = document.getElementById('radialHubBtn');
-    var backdrop = document.getElementById('radialBackdrop');
-    if (!wrap || !hub) return;
+    // ============================================
+    // منوی کشویی (دایره وسط هدر)
+    // ============================================
+    var hub = document.getElementById('menuHubBtn');
+    var panel = document.getElementById('menuPanel');
+    var backdrop = document.getElementById('menuBackdrop');
+    
+    if (hub && panel) {
+        function closeMenu() {
+            panel.classList.remove('show');
+            hub.classList.remove('open');
+            backdrop.classList.remove('show');
+        }
 
-    var items = Array.prototype.slice.call(wrap.querySelectorAll('.radial-item'));
-    var n = items.length;
+        function openMenu() {
+            panel.classList.add('show');
+            hub.classList.add('open');
+            backdrop.classList.add('show');
+        }
 
-    // حداکثر تعداد آیتم در هر حلقه، طوری که فاصله زاویه‌ای بین آیتم‌ها از حد
-    // مشخصی کمتر نشود (تا خوانا بمانند و روی هم نیفتند)
-    var MAX_PER_RING = 7;
+        // کلیک روی دکمه منو
+        hub.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (panel.classList.contains('show')) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        });
 
-    function layout() {
-        var isSmall = window.innerWidth < 576;
-        var innerRadius = isSmall ? 108 : 150;
-        var outerRadius = isSmall ? 170 : 250;
+        // کلیک روی backdrop
+        backdrop.addEventListener('click', closeMenu);
 
-        // نیم‌دایره سمت چپ دکمه (چون دکمه روی لبه راست صفحه است): از بالا (۹۰ درجه)
-        // تا پایین (۲۷۰ درجه)، عبور از حالت کاملاً چپ (۱۸۰ درجه)
-        var startAngle = 92;
-        var endAngle = 268;
+        // کلیک روی آیتم‌های منو
+        panel.addEventListener('click', function(e) {
+            var link = e.target.closest('a.menu-item');
+            if (link) {
+                closeMenu();
+                return true;
+            }
+        });
 
-        var useTwoRings = n > MAX_PER_RING;
-        var ring1Count = useTwoRings ? Math.ceil(n / 2) : n;
-        var ring2Count = useTwoRings ? Math.floor(n / 2) : 0;
+        // جلوگیری از بسته شدن منو هنگام کلیک داخل پنل
+        panel.addEventListener('mousedown', function(e) {
+            if (!e.target.closest('a.menu-item')) {
+                e.stopPropagation();
+            }
+        });
 
-        items.forEach(function (item, i) {
-            var ringIndex = (useTwoRings && i >= ring1Count) ? 1 : 0;
-            var countInRing = ringIndex === 0 ? ring1Count : ring2Count;
-            var indexInRing = ringIndex === 0 ? i : i - ring1Count;
-            var radius = ringIndex === 0 ? innerRadius : outerRadius;
-
-            var span = (countInRing > 1) ? (endAngle - startAngle) : 0;
-            var angle = (countInRing === 1)
-                ? (startAngle + endAngle) / 2
-                : startAngle + (span * indexInRing / (countInRing - 1));
-            var rad = angle * Math.PI / 270;
-
-            var x = Math.cos(rad) * radius;
-            var y = Math.sin(rad) * radius;
-
-            item.style.transform = wrap.classList.contains('open')
-                ? 'translate(' + x + 'px, ' + y + 'px)'
-                : 'translate(0, 0)';
+        // بستن منو با کلید Escape
+        document.addEventListener('keydown', function(e) { 
+            if (e.key === 'Escape') {
+                closeMenu();
+            }
         });
     }
 
-    function toggleMenu() {
-        wrap.classList.toggle('open');
-        backdrop.classList.toggle('show');
+    // ============================================
+    // منوی شعاعی (کد قبلی شما)
+    // ============================================
+    var wrap = document.getElementById('radialMenu');
+    var radialHub = document.getElementById('radialHubBtn');
+    var radialBackdrop = document.getElementById('radialBackdrop');
+    
+    if (wrap && radialHub) {
+        var items = Array.prototype.slice.call(wrap.querySelectorAll('.radial-item'));
+        var n = items.length;
+        var MAX_PER_RING = 7;
+
+        function layout() {
+            var isSmall = window.innerWidth < 576;
+            var innerRadius = isSmall ? 108 : 150;
+            var outerRadius = isSmall ? 170 : 250;
+
+            var startAngle = 92;
+            var endAngle = 268;
+
+            var useTwoRings = n > MAX_PER_RING;
+            var ring1Count = useTwoRings ? Math.ceil(n / 2) : n;
+            var ring2Count = useTwoRings ? Math.floor(n / 2) : 0;
+
+            items.forEach(function (item, i) {
+                var ringIndex = (useTwoRings && i >= ring1Count) ? 1 : 0;
+                var countInRing = ringIndex === 0 ? ring1Count : ring2Count;
+                var indexInRing = ringIndex === 0 ? i : i - ring1Count;
+                var radius = ringIndex === 0 ? innerRadius : outerRadius;
+
+                var span = (countInRing > 1) ? (endAngle - startAngle) : 0;
+                var angle = (countInRing === 1)
+                    ? (startAngle + endAngle) / 2
+                    : startAngle + (span * indexInRing / (countInRing - 1));
+                var rad = angle * Math.PI / 270;
+
+                var x = Math.cos(rad) * radius;
+                var y = Math.sin(rad) * radius;
+
+                item.style.transform = wrap.classList.contains('open')
+                    ? 'translate(' + x + 'px, ' + y + 'px)'
+                    : 'translate(0, 0)';
+            });
+        }
+
+        function toggleRadialMenu() {
+            wrap.classList.toggle('open');
+            radialBackdrop.classList.toggle('show');
+            layout();
+        }
+
+        radialHub.addEventListener('click', toggleRadialMenu);
+        radialBackdrop.addEventListener('click', toggleRadialMenu);
+        window.addEventListener('resize', layout);
         layout();
     }
-
-    hub.addEventListener('click', toggleMenu);
-    backdrop.addEventListener('click', toggleMenu);
-    window.addEventListener('resize', layout);
-    layout();
 })();
 </script>
 
@@ -267,6 +604,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>window.NOTIF_UNREAD_URL = "{% url 'notifications:unread_count' %}";</script>
 <script src="{% static 'js/app.js' %}"></script>
+<script type="module" src="{% static 'js/neat-background.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,52 @@
+/*
+   پس‌زمینه گرادیان متحرک نوار بالا (@firecms/neat)
+   این فایل فقط ظاهر/چیدمان canvas را مشخص می‌کند؛ تنظیمات رنگ و حرکت
+   گرادیان در static/js/neat-background.js است.
+*/
+
+.topbar {
+    position: relative;
+    overflow: hidden;
+    border-bottom: none;
+}
+
+#neatBackgroundCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+}
+
+/* همه محتوای واقعی نوار بالا (لوگو، آیکن‌ها، پروفایل) باید روی گرادیان
+   قرار بگیرد، نه زیر آن */
+.topbar > :not(#neatBackgroundCanvas) {
+    position: relative;
+    z-index: 1;
+}
+
+/* چون پس‌زمینه نوار بالا حالا تیره/رنگی است، متن و آیکن‌ها باید روشن باشند */
+.topbar .brand-title,
+.topbar .user-chip,
+.topbar .user-chip strong {
+    color: #FFFFFF !important;
+}
+
+.topbar .user-chip small {
+    color: rgba(255, 255, 255, .75) !important;
+}
+
+.topbar .icon-btn {
+    color: #FFFFFF;
+}
+
+.topbar .icon-btn:hover {
+    background: rgba(255, 255, 255, .16);
+}
+
+/* اگر جاوااسکریپت گرادیان به هر دلیل (مثلاً عدم پشتیبانی مرورگر) بارگذاری
+   نشد، یک پس‌زمینه سبز ساده جایگزین آن می‌شود تا نوار بالا خالی نماند */
+.topbar {
+    background-color: #15532D;
+}
